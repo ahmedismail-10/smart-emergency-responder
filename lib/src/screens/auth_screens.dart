@@ -391,9 +391,16 @@ class _LoginFormPanel extends StatelessWidget {
                     size: 32,
                   ),
                   SizedBox(width: 8),
-                  Text(
-                    'Smart Emergency Responder',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
+                  Expanded(
+                    child: Text(
+                      'Smart Emergency Responder',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -544,9 +551,16 @@ class _SignupFormPanel extends StatelessWidget {
                     size: 32,
                   ),
                   SizedBox(width: 8),
-                  Text(
-                    'Smart Emergency Responder',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
+                  Expanded(
+                    child: Text(
+                      'Smart Emergency Responder',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
                 ],
               ),

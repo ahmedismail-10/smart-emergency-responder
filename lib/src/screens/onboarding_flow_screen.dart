@@ -7,6 +7,67 @@ import 'package:go_router/go_router.dart';
 import '../state/app_state.dart';
 import '../theme/app_colors.dart';
 
+class SplashLoadingScreen extends StatefulWidget {
+  const SplashLoadingScreen({super.key});
+
+  @override
+  State<SplashLoadingScreen> createState() => _SplashLoadingScreenState();
+}
+
+class _SplashLoadingScreenState extends State<SplashLoadingScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _loadingController;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadingController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 3))
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed && mounted) {
+              context.go('/onboarding');
+            }
+          })
+          ..forward();
+  }
+
+  @override
+  void dispose() {
+    _loadingController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFF9F9FC), Color(0xFFF3F3F6)],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            child: Column(
+              children: [
+                const Expanded(child: _SplashBrandPage()),
+                AnimatedBuilder(
+                  animation: _loadingController,
+                  builder: (context, _) =>
+                      _ProgressLine(progress: _loadingController.value),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class OnboardingFlowScreen extends ConsumerStatefulWidget {
   const OnboardingFlowScreen({super.key});
 
@@ -15,19 +76,48 @@ class OnboardingFlowScreen extends ConsumerStatefulWidget {
       _OnboardingFlowScreenState();
 }
 
-class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
+class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
+  late final AnimationController _autoAdvanceController;
+  static const _onboardingPageCount = 3;
 
   static const _pageImages = <String>[
-    '',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuDQ8hSUWaJJYKMkVOLlbWgijeER17dk9modx6JFeYw4LSZqbm_lkpM_A1v6nrKdqcnkBxSVISrXiqe-siCKwacvf22pP1JbQTvElhTeOa4LmcqtZAAiSMVm0IFYf_Fz-7YB6Qluqvx_XuzYdIRCiEwnrHFUOx1lR5yCAK9UejBGbCMHrzm_g5WRrmY4UaMe-wj4LSsSYVZR99EL2ysKmZmC7oh27WV9Y1slpq5eCIrr5vXMeFqDSs2Jax23U0w7hGwneptzgMRDplkO',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuDaLBH6NYjVd4zEpjYHVfeYrtAixhxiu4hnO1HyCNi_HTiN0bQvugZvN6dI528f6HvRDabMEIj-HomNcIBtuqplt12-GWnmLI8v85MM_4JysTcc5P90lqYx9v3ZviXMNgaxmKVJm9ZhOcppCND_rof77vWMu0dJ-czhP0mFdTDRPx0UyfUMgsPLS3HleSl1Q9GVcNrw3PvgyO5oPUqu6Y5hZ2B7CBspAPibpqwekudgtf3YLBCeGxH7yqponsPVeTt9ObatKs9CF1Lp',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuDcIMFkFPERAis59-_CSErQsD1RBjIHTTlxgR6CD0zHkWA8kCdSt6OHQJyWopb2NLOQyZVgTnqVtDecsEpswImxL_m3HEJiB2jFgbWPKjoAlMKZ79NdOr-uRRjtGdmRLYl5mYL3kUFmpQ6Lz2ZoAmVNeX9Vv27wI9PV8rZ5yhKVQ5ymylgZfQBuyX0H_8N7jcWVqwlyQNutMlo75JYVig7fyembTTofRYoK4sXxhf47hTym8BfsD_3Q5-mD5F281j8JxoGiuh1zkmPy',
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    ref.read(onboardingPageProvider.notifier).state = 0;
+    _autoAdvanceController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 5))
+          ..addListener(() => setState(() {}))
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed && mounted) {
+              _goToNext(context);
+            }
+          });
+    _restartAutoAdvance();
+  }
+
+  void _restartAutoAdvance() {
+    _autoAdvanceController
+      ..reset()
+      ..forward();
+  }
+
+  void _onPageChanged(int index) {
+    ref.read(onboardingPageProvider.notifier).state = index;
+    _restartAutoAdvance();
+  }
+
   void _goToNext(BuildContext context) {
     final page = ref.read(onboardingPageProvider);
-    if (page >= 3) {
+    if (page >= _onboardingPageCount - 1) {
+      _autoAdvanceController.stop();
       context.go('/login');
       return;
     }
@@ -37,8 +127,19 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
     );
   }
 
+  void _onSkip(BuildContext context) {
+    _autoAdvanceController.stop();
+    context.go('/login');
+  }
+
+  void _onManualNext(BuildContext context) {
+    _autoAdvanceController.stop();
+    _goToNext(context);
+  }
+
   @override
   void dispose() {
+    _autoAdvanceController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -46,7 +147,6 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
   @override
   Widget build(BuildContext context) {
     final page = ref.watch(onboardingPageProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       body: Container(
@@ -65,26 +165,24 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                 Expanded(
                   child: PageView(
                     controller: _pageController,
-                    onPageChanged: (index) =>
-                        ref.read(onboardingPageProvider.notifier).state = index,
+                    onPageChanged: _onPageChanged,
                     children: [
-                      _SplashBrandPage(theme: theme),
                       _OnboardingContentPage(
-                        imageUrl: _pageImages[1],
+                        imageUrl: _pageImages[0],
                         title: 'Emergency help instantly',
                         subtitle:
                             'Connect with professional responders and emergency services in less than 3 seconds.',
                         showStatusBadge: true,
                       ),
                       _OnboardingContentPage(
-                        imageUrl: _pageImages[2],
+                        imageUrl: _pageImages[1],
                         title: 'SOS and location sharing',
                         subtitle:
                             'Instantly broadcast your precise location to emergency responders and trusted contacts.',
                         showLocationOverlay: true,
                       ),
                       _OnboardingContentPage(
-                        imageUrl: _pageImages[3],
+                        imageUrl: _pageImages[2],
                         title: 'First aid guidance',
                         subtitle:
                             'Step-by-step clinical instructions for critical moments.',
@@ -94,26 +192,31 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _PageIndicator(currentPage: page),
+                _ProgressLine(progress: _autoAdvanceController.value),
+                const SizedBox(height: 16),
+                _PageIndicator(
+                  currentPage: page,
+                  pageCount: _onboardingPageCount,
+                ),
                 const SizedBox(height: 20),
-                if (page == 3)
+                if (page == _onboardingPageCount - 1)
                   _PrimaryActionButton(
                     label: 'Get Started',
                     icon: Icons.chevron_right_rounded,
-                    onPressed: () => context.go('/login'),
+                    onPressed: () => _onSkip(context),
                   )
                 else
                   Row(
                     children: [
                       TextButton(
-                        onPressed: () => context.go('/login'),
+                        onPressed: () => _onSkip(context),
                         child: const Text('Skip'),
                       ),
                       const Spacer(),
                       _PrimaryActionButton(
                         label: 'Next',
                         icon: Icons.arrow_forward_rounded,
-                        onPressed: () => _goToNext(context),
+                        onPressed: () => _onManualNext(context),
                       ),
                     ],
                   ),
@@ -127,12 +230,12 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
 }
 
 class _SplashBrandPage extends StatelessWidget {
-  const _SplashBrandPage({required this.theme});
-
-  final ThemeData theme;
+  const _SplashBrandPage();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       children: [
         const Spacer(),
@@ -363,16 +466,55 @@ class _OnboardingContentPage extends StatelessWidget {
   }
 }
 
+class _ProgressLine extends StatelessWidget {
+  const _ProgressLine({required this.progress});
+
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final clampedProgress = progress.clamp(0.0, 1.0).toDouble();
+    final percentage = (clampedProgress * 100).round();
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: LinearProgressIndicator(
+            value: clampedProgress,
+            minHeight: 8,
+            backgroundColor: AppColors.surfaceContainerHighest,
+            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            '$percentage%',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: AppColors.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _PageIndicator extends StatelessWidget {
-  const _PageIndicator({required this.currentPage});
+  const _PageIndicator({required this.currentPage, required this.pageCount});
 
   final int currentPage;
+  final int pageCount;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(4, (index) {
+      children: List.generate(pageCount, (index) {
         final isActive = index == currentPage;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 220),

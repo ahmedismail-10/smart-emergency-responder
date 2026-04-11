@@ -10,7 +10,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
     routes: [
-      GoRoute(path: '/splash', builder: (_, _) => const OnboardingFlowScreen()),
+      GoRoute(path: '/splash', builder: (_, _) => const SplashLoadingScreen()),
+      GoRoute(
+        path: '/onboarding',
+        builder: (_, _) => const OnboardingFlowScreen(),
+      ),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/signup', builder: (_, _) => const SignupScreen()),
       GoRoute(
