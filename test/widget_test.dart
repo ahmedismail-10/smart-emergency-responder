@@ -1,4 +1,4 @@
-import 'package:emergency_responder/src/app.dart';
+import 'package:emergency_responder/core/app/emergency_responder_app.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

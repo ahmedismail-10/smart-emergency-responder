@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'src/app.dart';
+import 'core/app/emergency_responder_app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
