@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
 
@@ -11,12 +12,22 @@ class LabeledField extends StatefulWidget {
     required this.hint,
     required this.icon,
     this.obscureText = false,
+    this.controller,
+    this.onChanged,
+    this.keyboardType = TextInputType.text,
+    this.textInputAction = TextInputAction.next,
+    this.inputFormatters,
   });
 
   final String label;
   final String hint;
   final IconData icon;
   final bool obscureText;
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
+  final TextInputType keyboardType;
+  final TextInputAction textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   State<LabeledField> createState() => _LabeledFieldState();
@@ -56,9 +67,14 @@ class _LabeledFieldState extends State<LabeledField> {
           ),
         ),
         TextField(
+          controller: widget.controller,
+          onChanged: widget.onChanged,
           obscureText: widget.obscureText && _isObscured,
           enableSuggestions: !widget.obscureText,
           autocorrect: !widget.obscureText,
+          keyboardType: widget.keyboardType,
+          textInputAction: widget.textInputAction,
+          inputFormatters: widget.inputFormatters,
           decoration: InputDecoration(
             hintText: widget.hint,
             prefixIcon: Icon(widget.icon, color: AppColors.onSurfaceVariant),

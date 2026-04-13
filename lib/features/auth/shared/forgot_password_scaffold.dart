@@ -12,12 +12,14 @@ class ForgotPasswordScaffold extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.child,
+    this.onBackPressed,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
   final Widget child;
+  final VoidCallback? onBackPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,15 @@ class ForgotPasswordScaffold extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
+          onPressed:
+              onBackPressed ??
+              () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/login');
+                }
+              },
         ),
         title: const Text('Vital Pulse'),
       ),

@@ -2,21 +2,113 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../shared/logout_confirmation.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  void _handleBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go('/app');
+  }
+
+  Future<void> _selectLanguage(BuildContext context, WidgetRef ref) async {
+    final currentLanguage = ref.read(appLanguageProvider);
+    final languages = <String>[
+      'English (United States)',
+      'Arabic (Egypt)',
+      'French (France)',
+    ];
+
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Select Language',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
+                ),
+                const SizedBox(height: 8),
+                ...languages.map(
+                  (language) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Radio<String>(
+                      value: language,
+                      groupValue: currentLanguage,
+                      onChanged: (_) =>
+                          Navigator.of(sheetContext).pop(language),
+                    ),
+                    title: Text(language),
+                    onTap: () => Navigator.of(sheetContext).pop(language),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selected == null || selected == currentLanguage) {
+      return;
+    }
+
+    ref.read(appLanguageProvider.notifier).state = selected;
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text('Language changed to $selected')));
+  }
+
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showLogoutConfirmationDialog(
+      context,
+      title: 'Confirm Log Out',
+      message: 'Are you sure you want to log out?',
+      confirmLabel: 'Log Out',
+    );
+
+    if (!context.mounted || !confirmed) {
+      return;
+    }
+
+    ref.read(drawerOpenProvider.notifier).state = false;
+    ref.read(appTabProvider.notifier).state = AppTab.home;
+    context.go('/login');
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifications = ref.watch(emergencyNotificationsProvider);
     final tones = ref.watch(audibleTonesProvider);
     final darkMode = ref.watch(darkModeProvider);
+    final language = ref.watch(appLanguageProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => _handleBack(context),
+        ),
+        title: const Text('Settings'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
         child: Column(
@@ -140,8 +232,8 @@ class SettingsScreen extends ConsumerWidget {
               icon: Icons.translate_rounded,
               iconColor: AppColors.onSurface,
               title: 'Language Selection',
-              subtitle: 'Current: English (United States)',
-              onTap: () {},
+              subtitle: 'Current: $language',
+              onTap: () => _selectLanguage(context, ref),
             ),
             const SizedBox(height: 28),
             SizedBox(
@@ -155,7 +247,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                onPressed: () {},
+                onPressed: () => _logout(context, ref),
                 icon: const Icon(Icons.logout_rounded),
                 label: const Text(
                   'Log Out of Responder Shell',

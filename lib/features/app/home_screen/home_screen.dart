@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, unnecessary_underscores
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/pulsing_dot.dart';
@@ -74,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                   shadowColor: Colors.transparent,
                   shape: const CircleBorder(),
                 ),
-                onPressed: () {},
+                onPressed: () => context.push('/sos'),
                 child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -145,7 +146,7 @@ class HomeScreen extends StatelessWidget {
                 subtitle: 'Self Assessment',
                 iconBg: AppColors.primary.withOpacity(0.08),
                 iconColor: AppColors.primary,
-                onTap: () {},
+                onTap: () => context.push('/analyze-symptoms'),
               ),
               _QuickActionCard(
                 icon: Icons.explore_outlined,
@@ -169,7 +170,7 @@ class HomeScreen extends StatelessWidget {
                 subtitle: 'Instant Guidance',
                 iconBg: Colors.black.withOpacity(0.06),
                 iconColor: AppColors.onSurface,
-                onTap: () {},
+                onTap: () => context.push('/ai-chat'),
               ),
             ],
           ),

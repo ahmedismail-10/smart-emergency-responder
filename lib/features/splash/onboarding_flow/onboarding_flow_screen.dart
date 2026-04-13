@@ -23,9 +23,9 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen>
   static const _onboardingPageCount = 3;
 
   static const _pageImages = <String>[
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDQ8hSUWaJJYKMkVOLlbWgijeER17dk9modx6JFeYw4LSZqbm_lkpM_A1v6nrKdqcnkBxSVISrXiqe-siCKwacvf22pP1JbQTvElhTeOa4LmcqtZAAiSMVm0IFYf_Fz-7YB6Qluqvx_XuzYdIRCiEwnrHFUOx1lR5yCAK9UejBGbCMHrzm_g5WRrmY4UaMe-wj4LSsSYVZR99EL2ysKmZmC7oh27WV9Y1slpq5eCIrr5vXMeFqDSs2Jax23U0w7hGwneptzgMRDplkO',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDaLBH6NYjVd4zEpjYHVfeYrtAixhxiu4hnO1HyCNi_HTiN0bQvugZvN6dI528f6HvRDabMEIj-HomNcIBtuqplt12-GWnmLI8v85MM_4JysTcc5P90lqYx9v3ZviXMNgaxmKVJm9ZhOcppCND_rof77vWMu0dJ-czhP0mFdTDRPx0UyfUMgsPLS3HleSl1Q9GVcNrw3PvgyO5oPUqu6Y5hZ2B7CBspAPibpqwekudgtf3YLBCeGxH7yqponsPVeTt9ObatKs9CF1Lp',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDcIMFkFPERAis59-_CSErQsD1RBjIHTTlxgR6CD0zHkWA8kCdSt6OHQJyWopb2NLOQyZVgTnqVtDecsEpswImxL_m3HEJiB2jFgbWPKjoAlMKZ79NdOr-uRRjtGdmRLYl5mYL3kUFmpQ6Lz2ZoAmVNeX9Vv27wI9PV8rZ5yhKVQ5ymylgZfQBuyX0H_8N7jcWVqwlyQNutMlo75JYVig7fyembTTofRYoK4sXxhf47hTym8BfsD_3Q5-mD5F281j8JxoGiuh1zkmPy',
+    'assets/images/spash1.png',
+    'assets/images/spash2.png',
+    'assets/images/spash3.png',
   ];
 
   @override
@@ -108,21 +108,21 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen>
                     onPageChanged: _onPageChanged,
                     children: [
                       _OnboardingContentPage(
-                        imageUrl: _pageImages[0],
+                        imagePath: _pageImages[0],
                         title: 'Emergency help instantly',
                         subtitle:
                             'Connect with professional responders and emergency services in less than 3 seconds.',
                         showStatusBadge: true,
                       ),
                       _OnboardingContentPage(
-                        imageUrl: _pageImages[1],
+                        imagePath: _pageImages[1],
                         title: 'SOS and location sharing',
                         subtitle:
                             'Instantly broadcast your precise location to emergency responders and trusted contacts.',
                         showLocationOverlay: true,
                       ),
                       _OnboardingContentPage(
-                        imageUrl: _pageImages[2],
+                        imagePath: _pageImages[2],
                         title: 'First aid guidance',
                         subtitle:
                             'Step-by-step clinical instructions for critical moments.',
@@ -171,7 +171,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen>
 
 class _OnboardingContentPage extends StatelessWidget {
   const _OnboardingContentPage({
-    required this.imageUrl,
+    required this.imagePath,
     required this.title,
     required this.subtitle,
     this.showStatusBadge = false,
@@ -179,7 +179,7 @@ class _OnboardingContentPage extends StatelessWidget {
     this.circleImage = false,
   });
 
-  final String imageUrl;
+  final String imagePath;
   final String title;
   final String subtitle;
   final bool showStatusBadge;
@@ -201,8 +201,8 @@ class _OnboardingContentPage extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    imageUrl,
+                  Image.asset(
+                    imagePath,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       color: AppColors.surfaceContainerHigh,

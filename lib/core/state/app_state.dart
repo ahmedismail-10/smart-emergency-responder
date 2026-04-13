@@ -9,3 +9,6 @@ final drawerOpenProvider = StateProvider<bool>((ref) => false);
 final emergencyNotificationsProvider = StateProvider<bool>((ref) => true);
 final audibleTonesProvider = StateProvider<bool>((ref) => true);
 final darkModeProvider = StateProvider<bool>((ref) => false);
+final appLanguageProvider = StateProvider<String>(
+  (ref) => 'English (United States)',
+);

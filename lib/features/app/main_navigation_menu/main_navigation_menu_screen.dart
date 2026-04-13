@@ -11,15 +11,45 @@ import '../../../core/theme/app_colors.dart';
 import '../emergency_contacts/emergency_contacts_screen.dart';
 import '../home_screen/home_screen.dart';
 import '../map_nearby_services/map_nearby_services_screen.dart';
+import '../shared/logout_confirmation.dart';
 import '../user_profile/user_profile_screen.dart';
 
 class AppShellScreen extends ConsumerWidget {
   const AppShellScreen({super.key});
 
+  Future<void> _logoutFromApp(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showLogoutConfirmationDialog(
+      context,
+      title: 'End Shift',
+      message: 'Are you sure you want to end your shift and log out?',
+      confirmLabel: 'End Shift',
+    );
+
+    if (!context.mounted || !confirmed) {
+      return;
+    }
+
+    ref.read(drawerOpenProvider.notifier).state = false;
+    ref.read(appTabProvider.notifier).state = AppTab.home;
+    context.go('/login');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tab = ref.watch(appTabProvider);
     final drawerOpen = ref.watch(drawerOpenProvider);
+
+    void closeDrawer() => ref.read(drawerOpenProvider.notifier).state = false;
+
+    void openSettings() {
+      closeDrawer();
+      context.push('/settings');
+    }
+
+    void openModuleRoute(String route) {
+      closeDrawer();
+      context.push(route);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -37,7 +67,7 @@ class AppShellScreen extends ConsumerWidget {
             ),
             onPressed: () {
               if (tab == AppTab.profile) {
-                context.go('/settings');
+                context.push('/settings');
                 return;
               }
               ref.read(appTabProvider.notifier).state = AppTab.profile;
@@ -68,11 +98,21 @@ class AppShellScreen extends ConsumerWidget {
           ),
           if (drawerOpen)
             _MainDrawerOverlay(
-              onClose: () =>
-                  ref.read(drawerOpenProvider.notifier).state = false,
-              onOpenSettings: () {
-                ref.read(drawerOpenProvider.notifier).state = false;
-                context.go('/settings');
+              onClose: closeDrawer,
+              onOpenSettings: openSettings,
+              onOpenIncidentHistory: () =>
+                  openModuleRoute('/module/incident-history'),
+              onOpenTrainingModules: () =>
+                  openModuleRoute('/module/training-modules'),
+              onOpenEquipmentStatus: () =>
+                  openModuleRoute('/module/equipment-status'),
+              onOpenMedicalRecords: () =>
+                  openModuleRoute('/module/medical-records'),
+              onOpenInsuranceInfo: () =>
+                  openModuleRoute('/module/insurance-info'),
+              onEndShift: () {
+                closeDrawer();
+                _logoutFromApp(context, ref);
               },
             ),
         ],
@@ -101,10 +141,22 @@ class _MainDrawerOverlay extends StatelessWidget {
   const _MainDrawerOverlay({
     required this.onClose,
     required this.onOpenSettings,
+    required this.onOpenIncidentHistory,
+    required this.onOpenTrainingModules,
+    required this.onOpenEquipmentStatus,
+    required this.onOpenMedicalRecords,
+    required this.onOpenInsuranceInfo,
+    required this.onEndShift,
   });
 
   final VoidCallback onClose;
   final VoidCallback onOpenSettings;
+  final VoidCallback onOpenIncidentHistory;
+  final VoidCallback onOpenTrainingModules;
+  final VoidCallback onOpenEquipmentStatus;
+  final VoidCallback onOpenMedicalRecords;
+  final VoidCallback onOpenInsuranceInfo;
+  final VoidCallback onEndShift;
 
   @override
   Widget build(BuildContext context) {
@@ -183,28 +235,27 @@ class _MainDrawerOverlay extends StatelessWidget {
                   _DrawerItem(
                     icon: Icons.history_rounded,
                     title: 'Incident History',
-                    active: true,
-                    onTap: () {},
+                    onTap: onOpenIncidentHistory,
                   ),
                   _DrawerItem(
                     icon: Icons.school_outlined,
                     title: 'Training Modules',
-                    onTap: () {},
+                    onTap: onOpenTrainingModules,
                   ),
                   _DrawerItem(
                     icon: Icons.inventory_2_outlined,
                     title: 'Equipment Status',
-                    onTap: () {},
+                    onTap: onOpenEquipmentStatus,
                   ),
                   _DrawerItem(
                     icon: Icons.note_alt_outlined,
                     title: 'Medical Records',
-                    onTap: () {},
+                    onTap: onOpenMedicalRecords,
                   ),
                   _DrawerItem(
                     icon: Icons.verified_user_outlined,
                     title: 'Insurance Info',
-                    onTap: () {},
+                    onTap: onOpenInsuranceInfo,
                   ),
                   const Divider(height: 26),
                   _DrawerItem(
@@ -224,7 +275,7 @@ class _MainDrawerOverlay extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      onPressed: () {},
+                      onPressed: onEndShift,
                       icon: const Icon(Icons.logout_rounded),
                       label: const Text(
                         'End Shift',
@@ -247,20 +298,18 @@ class _DrawerItem extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.onTap,
-    this.active = false,
   });
 
   final IconData icon;
   final String title;
   final VoidCallback onTap;
-  final bool active;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: active ? AppColors.errorContainer : Colors.transparent,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: onTap,
@@ -269,20 +318,12 @@ class _DrawerItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(
               children: [
-                Icon(
-                  icon,
-                  size: 22,
-                  color: active
-                      ? AppColors.primary
-                      : AppColors.onSurfaceVariant,
-                ),
+                Icon(icon, size: 22, color: AppColors.onSurfaceVariant),
                 const SizedBox(width: 12),
                 Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: active
-                        ? AppColors.primary
-                        : AppColors.onSurfaceVariant,
+                    color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
