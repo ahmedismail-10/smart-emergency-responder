@@ -77,24 +77,19 @@ class AppShellScreen extends ConsumerWidget {
       ),
       body: Stack(
         children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 260),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            child: KeyedSubtree(
-              key: ValueKey(tab.name),
-              child: switch (tab) {
-                AppTab.home => HomeScreen(
-                  onOpenMap: () =>
-                      ref.read(appTabProvider.notifier).state = AppTab.map,
-                  onOpenContacts: () =>
-                      ref.read(appTabProvider.notifier).state = AppTab.contacts,
-                ),
-                AppTab.map => const MapNearbyServicesScreen(),
-                AppTab.contacts => const EmergencyContactsScreen(),
-                AppTab.profile => const UserProfileScreen(),
-              },
-            ),
+          IndexedStack(
+            index: tab.index,
+            children: [
+              HomeScreen(
+                onOpenMap: () =>
+                    ref.read(appTabProvider.notifier).state = AppTab.map,
+                onOpenContacts: () =>
+                    ref.read(appTabProvider.notifier).state = AppTab.contacts,
+              ),
+              const MapNearbyServicesScreen(),
+              const EmergencyContactsScreen(),
+              const UserProfileScreen(),
+            ],
           ),
           if (drawerOpen)
             _MainDrawerOverlay(
@@ -160,6 +155,14 @@ class _MainDrawerOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final drawerBackground = isDark
+        ? const Color(0xFF101722)
+        : const Color(0xFFFCFBFB);
+    final avatarFallbackColor = isDark
+        ? const Color(0xFF243042)
+        : AppColors.surfaceContainerHighest;
+
     return Positioned.fill(
       child: Stack(
         children: [
@@ -175,8 +178,8 @@ class _MainDrawerOverlay extends StatelessWidget {
             child: Container(
               width: MediaQuery.of(context).size.width * 0.8,
               height: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFCFBFB),
+              decoration: BoxDecoration(
+                color: drawerBackground,
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(30),
                   bottomRight: Radius.circular(30),
@@ -197,7 +200,7 @@ class _MainDrawerOverlay extends StatelessWidget {
                           errorBuilder: (_, __, ___) => Container(
                             width: 56,
                             height: 56,
-                            color: AppColors.surfaceContainerHighest,
+                            color: avatarFallbackColor,
                             alignment: Alignment.center,
                             child: const Icon(Icons.person),
                           ),
@@ -318,12 +321,20 @@ class _DrawerItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(
               children: [
-                Icon(icon, size: 22, color: AppColors.onSurfaceVariant),
+                Icon(
+                  icon,
+                  size: 22,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFFBBC6D5)
+                      : AppColors.onSurfaceVariant,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFFBBC6D5)
+                        : AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -344,16 +355,20 @@ class _BottomTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.95),
+            color: isDark
+                ? const Color(0xFF101722).withOpacity(0.95)
+                : Colors.white.withOpacity(0.95),
             borderRadius: BorderRadius.circular(26),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withOpacity(isDark ? 0.28 : 0.08),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -415,6 +430,14 @@ class _TabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeBackground = isDark
+        ? AppColors.primary.withOpacity(0.26)
+        : AppColors.errorContainer.withOpacity(0.7);
+    final inactiveColor = isDark
+        ? const Color(0xFFC0CAD7)
+        : AppColors.onSurfaceVariant;
+
     return Expanded(
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -423,9 +446,7 @@ class _TabItem extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: active
-                ? AppColors.errorContainer.withOpacity(0.7)
-                : Colors.transparent,
+            color: active ? activeBackground : Colors.transparent,
             borderRadius: BorderRadius.circular(18),
           ),
           child: Column(
@@ -433,7 +454,7 @@ class _TabItem extends StatelessWidget {
             children: [
               Icon(
                 active ? activeIcon : icon,
-                color: active ? AppColors.primary : AppColors.onSurfaceVariant,
+                color: active ? AppColors.primary : inactiveColor,
                 size: 22,
               ),
               const SizedBox(height: 3),
@@ -442,9 +463,7 @@ class _TabItem extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: active
-                      ? AppColors.primary
-                      : AppColors.onSurfaceVariant,
+                  color: active ? AppColors.primary : inactiveColor,
                 ),
               ),
             ],

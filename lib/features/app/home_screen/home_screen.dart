@@ -18,6 +18,29 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final statusBackground = isDark
+        ? const Color(0xFF1B2533)
+        : AppColors.secondaryContainer;
+    final statusTextColor = isDark
+        ? const Color(0xFF9DF2AE)
+        : const Color(0xFF005312);
+    final quickSupportDivider = isDark
+        ? const Color(0xFF2A3648)
+        : AppColors.surfaceContainerHighest;
+    final profileCardColor = isDark
+        ? const Color(0xFF161D28)
+        : Colors.black.withOpacity(0.03);
+    final profileCardBorder = isDark
+        ? const Color(0xFF2A3648)
+        : Colors.black.withOpacity(0.05);
+    final avatarFallback = isDark
+        ? const Color(0xFF2A3648)
+        : AppColors.surfaceContainerHighest;
+    final secondaryText = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
       child: Column(
@@ -26,7 +49,7 @@ class HomeScreen extends StatelessWidget {
           Center(
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.secondaryContainer,
+                color: statusBackground,
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(
                   color: AppColors.secondary.withOpacity(0.15),
@@ -41,7 +64,7 @@ class HomeScreen extends StatelessWidget {
                   Text(
                     'Status: Safe',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: const Color(0xFF005312),
+                      color: statusTextColor,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -124,7 +147,7 @@ class HomeScreen extends StatelessWidget {
                 child: Container(
                   height: 2,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerHighest,
+                    color: quickSupportDivider,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -144,7 +167,9 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.medical_services_outlined,
                 title: 'Analyze Symptoms',
                 subtitle: 'Self Assessment',
-                iconBg: AppColors.primary.withOpacity(0.08),
+                iconBg: isDark
+                    ? AppColors.primary.withOpacity(0.24)
+                    : AppColors.primary.withOpacity(0.08),
                 iconColor: AppColors.primary,
                 onTap: () => context.push('/analyze-symptoms'),
               ),
@@ -152,7 +177,9 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.explore_outlined,
                 title: 'Nearby Help',
                 subtitle: 'Map & Hospitals',
-                iconBg: Colors.blue.withOpacity(0.08),
+                iconBg: isDark
+                    ? Colors.blue.withOpacity(0.22)
+                    : Colors.blue.withOpacity(0.08),
                 iconColor: Colors.blue.shade700,
                 onTap: onOpenMap,
               ),
@@ -160,7 +187,9 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.call_outlined,
                 title: 'Contacts',
                 subtitle: 'Emergency Circle',
-                iconBg: Colors.orange.withOpacity(0.12),
+                iconBg: isDark
+                    ? Colors.orange.withOpacity(0.26)
+                    : Colors.orange.withOpacity(0.12),
                 iconColor: Colors.orange.shade700,
                 onTap: onOpenContacts,
               ),
@@ -168,7 +197,9 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.smart_toy_outlined,
                 title: 'AI First Aid',
                 subtitle: 'Instant Guidance',
-                iconBg: Colors.black.withOpacity(0.06),
+                iconBg: isDark
+                    ? Colors.white.withOpacity(0.16)
+                    : Colors.black.withOpacity(0.06),
                 iconColor: AppColors.onSurface,
                 onTap: () => context.push('/ai-chat'),
               ),
@@ -177,9 +208,9 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 18),
           Container(
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.03),
+              color: profileCardColor,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.black.withOpacity(0.05)),
+              border: Border.all(color: profileCardBorder),
             ),
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -193,7 +224,7 @@ class HomeScreen extends StatelessWidget {
                     errorBuilder: (_, __, ___) => Container(
                       width: 56,
                       height: 56,
-                      color: AppColors.surfaceContainerHighest,
+                      color: avatarFallback,
                       alignment: Alignment.center,
                       child: const Icon(Icons.person_rounded),
                     ),
@@ -214,7 +245,7 @@ class HomeScreen extends StatelessWidget {
                       Text(
                         'Last sync: 2 minutes ago • Vitals Stable',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.onSurfaceVariant,
+                          color: secondaryText,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -266,8 +297,16 @@ class _QuickActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark
+        ? const Color(0xFF161D28)
+        : AppColors.surfaceContainerLowest;
+    final subtitleColor = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant.withOpacity(0.7);
+
     return Material(
-      color: AppColors.surfaceContainerLowest,
+      color: cardColor,
       borderRadius: BorderRadius.circular(28),
       child: InkWell(
         onTap: onTap,
@@ -298,7 +337,7 @@ class _QuickActionCard extends StatelessWidget {
               Text(
                 subtitle.toUpperCase(),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppColors.onSurfaceVariant.withOpacity(0.7),
+                  color: subtitleColor,
                   letterSpacing: 1,
                   fontWeight: FontWeight.w700,
                 ),

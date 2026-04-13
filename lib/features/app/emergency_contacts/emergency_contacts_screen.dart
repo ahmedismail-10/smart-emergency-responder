@@ -15,7 +15,7 @@ class EmergencyContactsScreen extends StatefulWidget {
 class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
   int _nextId = 5;
   final List<_EmergencyContact> _contacts = [
-    const _EmergencyContact(
+    _EmergencyContact(
       id: 1,
       name: 'Dr. James Wilson',
       role: 'Family Physician',
@@ -23,21 +23,21 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
           'https://lh3.googleusercontent.com/aida-public/AB6AXuCxMa_3YoVsxhkv2VIptqknuxljQbxLxucLu7kC6ZOftokxhzd5tUZQptcTK21kapAxBJxFyV-9drEZsJL8TJ1s8SNKCNselwolrnYquLxlJ_hD4L7F8N0mv2laB5p9H0IQVcYDSFXgO7D8bEbJ3DWfCTjFA4z_p690UiejRiJe91W92hU_lsTV1D6AJCN_bNL3txPzR9u15K_CFbOzsujMA1qquu5bgtS0AY_KYF_DD8A45xOZJDsMqu7S08FtUqeLlR9k9sgix9-Q',
       primary: true,
     ),
-    const _EmergencyContact(
+    _EmergencyContact(
       id: 2,
       name: 'Sarah Mitchell',
       role: 'Spouse',
       imageUrl:
           'https://lh3.googleusercontent.com/aida-public/AB6AXuCWzo8vdTBEvqlXqQgLOTD9oAw5py9b3fIhNY8AC1aUBBnwA_rrpe7TcF1rcPaq_kuOKFGIJFtXFCD8XFzzsWZXcS1q0kBQXiXvnyLheI8H97PC6WuZQM4LU3kFJIhzpxjaQzTwWGOJ9pMVsZLvWA4zDOrPjV7DqqenVDpCXJ3iio33GV_xYq9h0y-xo2hBfi7Ay_kOJPwT2B3quBVHzIN7lXDEj5fFXHB6-ZbqgvA_DnVS1WxLGafHK3yGcHf7-VLtSX60-TdHCvPY',
     ),
-    const _EmergencyContact(
+    _EmergencyContact(
       id: 3,
       name: 'Robert Chen',
       role: 'Neighbor',
       imageUrl:
           'https://lh3.googleusercontent.com/aida-public/AB6AXuDBhqi-h7ytZVTBbwA1x-sZAPVFrcVHtrEjypkRp-YkKG_Iesbgz-dUs9wY1DWQYjEW6qFRGGmvIkbBdW_18Sjujuc4RwvWL8K9iPYYaNlsLjZPfp34ibjdKR2Fr8Ab-0hUGRtG5-GUt3uxGJUlOwCfplSiE02IUCfHuTlniDAhMPGTuQct2fhLNJCraydZpqxt-v--gNNnUTD8Q96Ar3GYqgLCQHxI_KkvCkOCzxWx9fc_qqZD2kfTDtINiskM50IbPigAx2UCxj7U',
     ),
-    const _EmergencyContact(
+    _EmergencyContact(
       id: 4,
       name: 'Emma Davis',
       role: 'Daughter',
@@ -94,6 +94,14 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                     final name = nameController.text.trim();
                     final role = roleController.text.trim();
                     if (name.isEmpty || role.isEmpty) {
+                      final messenger = ScaffoldMessenger.maybeOf(context);
+                      messenger
+                        ?..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          const SnackBar(
+                            content: Text('Name and role are required.'),
+                          ),
+                        );
                       return;
                     }
                     Navigator.of(dialogContext).pop(
@@ -116,7 +124,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
     nameController.dispose();
     roleController.dispose();
 
-    if (result == null) {
+    if (!mounted || result == null) {
       return;
     }
 
@@ -180,6 +188,10 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       return;
     }
 
+    if (!mounted) {
+      return;
+    }
+
     setState(() {
       _contacts.removeWhere((item) => item.id == contact.id);
       if (_contacts.isNotEmpty && !_contacts.any((item) => item.primary)) {
@@ -196,6 +208,20 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final panelColor = isDark
+        ? const Color(0xFF161D28)
+        : AppColors.surfaceContainerLowest;
+    final cardColor = isDark
+        ? const Color(0xFF1B2533)
+        : AppColors.surfaceContainerLow;
+    final tipColor = isDark
+        ? const Color(0xFF202B3A)
+        : AppColors.surfaceContainer;
+    final secondaryText = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 120),
       child: Column(
@@ -211,7 +237,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                     Text(
                       'EMERGENCY PROTOCOL',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppColors.onSurfaceVariant,
+                        color: secondaryText,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 2,
                       ),
@@ -251,7 +277,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLow,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(18),
               ),
               padding: const EdgeInsets.all(16),
@@ -269,13 +295,14 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                   onEdit: () => _openContactEditor(contact: contact),
                   onDelete: () => _deleteContact(contact),
                   onCall: () => _callContact(contact),
+                  tileColor: panelColor,
                 ),
               ),
             ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainer,
+              color: tipColor,
               borderRadius: BorderRadius.circular(20),
             ),
             padding: const EdgeInsets.all(16),
@@ -301,7 +328,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                 Text(
                   'Keep one primary contact always available for the fastest emergency notification path.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
+                    color: secondaryText,
                     height: 1.4,
                   ),
                 ),
@@ -320,19 +347,29 @@ class _ContactTile extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onCall,
+    required this.tileColor,
   });
 
   final _EmergencyContact contact;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onCall;
+  final Color tileColor;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final avatarFallbackColor = isDark
+        ? const Color(0xFF2A3648)
+        : AppColors.surfaceContainerHighest;
+    final secondaryText = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(999),
+        color: tileColor,
+        borderRadius: BorderRadius.circular(22),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
@@ -347,7 +384,7 @@ class _ContactTile extends StatelessWidget {
                     errorBuilder: (_, __, ___) => Container(
                       width: 56,
                       height: 56,
-                      color: AppColors.surfaceContainerHighest,
+                      color: avatarFallbackColor,
                       alignment: Alignment.center,
                       child: const Icon(Icons.person_rounded),
                     ),
@@ -355,7 +392,7 @@ class _ContactTile extends StatelessWidget {
                 : Container(
                     width: 56,
                     height: 56,
-                    color: AppColors.surfaceContainerHighest,
+                    color: avatarFallbackColor,
                     alignment: Alignment.center,
                     child: const Icon(Icons.person_rounded),
                   ),
@@ -370,6 +407,8 @@ class _ContactTile extends StatelessWidget {
                     Expanded(
                       child: Text(
                         contact.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 17,
@@ -399,23 +438,29 @@ class _ContactTile extends StatelessWidget {
                 ),
                 Text(
                   contact.role,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVariant,
+                    color: secondaryText,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
           ),
-          IconButton(
-            onPressed: onEdit,
-            icon: const Icon(Icons.edit_outlined),
-            color: AppColors.onSurfaceVariant,
-          ),
-          IconButton(
-            onPressed: onDelete,
-            icon: const Icon(Icons.delete_outline_rounded),
-            color: AppColors.error,
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'edit') {
+                onEdit();
+                return;
+              }
+              onDelete();
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+              PopupMenuItem<String>(value: 'delete', child: Text('Delete')),
+            ],
+            icon: Icon(Icons.more_vert_rounded, color: secondaryText),
           ),
           FilledButton(
             style: FilledButton.styleFrom(

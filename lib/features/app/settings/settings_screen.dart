@@ -99,6 +99,16 @@ class SettingsScreen extends ConsumerWidget {
     final tones = ref.watch(audibleTonesProvider);
     final darkMode = ref.watch(darkModeProvider);
     final language = ref.watch(appLanguageProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final profileCardColor = isDark
+        ? const Color(0xFF161D28)
+        : AppColors.surfaceContainerLowest;
+    final avatarFallbackColor = isDark
+        ? const Color(0xFF2A3648)
+        : AppColors.surfaceContainerHighest;
+    final secondaryText = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
 
     return Scaffold(
       appBar: AppBar(
@@ -116,7 +126,7 @@ class SettingsScreen extends ConsumerWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLowest,
+                color: profileCardColor,
                 borderRadius: BorderRadius.circular(24),
               ),
               padding: const EdgeInsets.all(16),
@@ -133,7 +143,7 @@ class SettingsScreen extends ConsumerWidget {
                           errorBuilder: (_, __, ___) => Container(
                             width: 74,
                             height: 74,
-                            color: AppColors.surfaceContainerHighest,
+                            color: avatarFallbackColor,
                             alignment: Alignment.center,
                             child: const Icon(Icons.person_rounded, size: 34),
                           ),
@@ -154,10 +164,10 @@ class SettingsScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(width: 12),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Officer James Miller',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
@@ -168,7 +178,7 @@ class SettingsScreen extends ConsumerWidget {
                       Text(
                         'ID: SR-9402',
                         style: TextStyle(
-                          color: AppColors.onSurfaceVariant,
+                          color: secondaryText,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1.1,
                         ),
@@ -182,7 +192,7 @@ class SettingsScreen extends ConsumerWidget {
             Text(
               'ALERT PREFERENCES',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.onSurfaceVariant,
+                color: secondaryText,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
               ),
@@ -212,7 +222,7 @@ class SettingsScreen extends ConsumerWidget {
             Text(
               'INTERFACE',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.onSurfaceVariant,
+                color: secondaryText,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
               ),
@@ -260,7 +270,7 @@ class SettingsScreen extends ConsumerWidget {
               child: Text(
                 'System Version 4.8.2 (Stable Production)',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppColors.onSurfaceVariant.withOpacity(0.7),
+                  color: secondaryText.withOpacity(0.7),
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,
                 ),
@@ -292,9 +302,17 @@ class _SettingsSwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tileColor = isDark
+        ? const Color(0xFF1B2533)
+        : AppColors.surfaceContainerLow;
+    final subtitleColor = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
+        color: tileColor,
         borderRadius: BorderRadius.circular(18),
       ),
       padding: const EdgeInsets.all(14),
@@ -321,9 +339,9 @@ class _SettingsSwitchTile extends StatelessWidget {
                 const SizedBox(height: 1),
                 Text(
                   subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: subtitleColor),
                 ),
               ],
             ),
@@ -352,8 +370,16 @@ class _SettingsActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tileColor = isDark
+        ? const Color(0xFF1B2533)
+        : AppColors.surfaceContainerLow;
+    final subtitleColor = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return Material(
-      color: AppColors.surfaceContainerLow,
+      color: tileColor,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -383,17 +409,14 @@ class _SettingsActionTile extends StatelessWidget {
                     const SizedBox(height: 1),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: subtitleColor),
                     ),
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.onSurfaceVariant,
-              ),
+              Icon(Icons.chevron_right_rounded, color: subtitleColor),
             ],
           ),
         ),

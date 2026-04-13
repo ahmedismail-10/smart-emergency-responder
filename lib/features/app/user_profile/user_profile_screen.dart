@@ -117,6 +117,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       },
     );
 
+    if (!mounted) {
+      displayNameController.dispose();
+      rescueIdController.dispose();
+      fullNameController.dispose();
+      addressController.dispose();
+      bloodTypeController.dispose();
+      ageController.dispose();
+      return;
+    }
+
     if (result != true) {
       displayNameController.dispose();
       rescueIdController.dispose();
@@ -193,11 +203,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
     controller.dispose();
 
+    if (!mounted) {
+      return;
+    }
+
     if (result == null || result.isEmpty) {
       return;
     }
 
-    setState(() => onSave(result));
+    setState(() {
+      onSave(result);
+    });
   }
 
   Future<void> _editCondition({_MedicalCondition? condition}) async {
@@ -287,6 +303,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     titleController.dispose();
     descriptionController.dispose();
 
+    if (!mounted) {
+      return;
+    }
+
     if (result == null) {
       return;
     }
@@ -337,6 +357,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       },
     );
 
+    if (!mounted) {
+      return;
+    }
+
     if (confirmed != true) {
       return;
     }
@@ -346,6 +370,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark
+        ? const Color(0xFF161D28)
+        : AppColors.surfaceContainerLowest;
+    final panelColor = isDark
+        ? const Color(0xFF1B2533)
+        : AppColors.surfaceContainerLow;
+    final avatarFallbackColor = isDark
+        ? const Color(0xFF2A3648)
+        : AppColors.surfaceContainerHighest;
+    final secondaryText = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
       child: Column(
@@ -360,7 +398,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     Text(
                       'MEDICAL IDENTITY',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppColors.onSurfaceVariant,
+                        color: secondaryText,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.9,
                       ),
@@ -394,7 +432,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowest,
+              color: cardColor,
               borderRadius: BorderRadius.circular(28),
             ),
             padding: const EdgeInsets.all(20),
@@ -411,7 +449,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         errorBuilder: (_, __, ___) => Container(
                           width: 126,
                           height: 126,
-                          color: AppColors.surfaceContainerHighest,
+                          color: avatarFallbackColor,
                           alignment: Alignment.center,
                           child: const Icon(Icons.person, size: 56),
                         ),
@@ -446,9 +484,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
                 Text(
                   'Rescue ID: $_rescueId',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: secondaryText),
                 ),
               ],
             ),
@@ -500,7 +538,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow,
+              color: panelColor,
               borderRadius: BorderRadius.circular(28),
             ),
             padding: const EdgeInsets.all(18),
@@ -526,7 +564,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                     FilledButton.tonalIcon(
                       style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.errorContainer,
+                        backgroundColor: isDark
+                            ? AppColors.primary.withOpacity(0.2)
+                            : AppColors.errorContainer,
                         foregroundColor: AppColors.primary,
                       ),
                       onPressed: () => _editCondition(),
@@ -579,9 +619,17 @@ class _ProfileStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tileColor = isDark
+        ? const Color(0xFF1B2533)
+        : AppColors.surfaceContainerLow;
+    final secondaryText = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
+        color: tileColor,
         borderRadius: BorderRadius.circular(24),
       ),
       padding: const EdgeInsets.all(18),
@@ -593,7 +641,7 @@ class _ProfileStatCard extends StatelessWidget {
           Text(
             title.toUpperCase(),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
+              color: secondaryText,
               letterSpacing: 1.4,
               fontWeight: FontWeight.w700,
             ),
@@ -628,6 +676,17 @@ class _InfoRowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tileColor = isDark
+        ? const Color(0xFF161D28)
+        : AppColors.surfaceContainerLowest;
+    final iconBackground = isDark
+        ? const Color(0xFF253246)
+        : AppColors.surfaceContainer;
+    final secondaryText = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -635,7 +694,7 @@ class _InfoRowCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: tileColor,
             borderRadius: BorderRadius.circular(22),
           ),
           padding: const EdgeInsets.all(14),
@@ -645,10 +704,10 @@ class _InfoRowCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceContainer,
+                  color: iconBackground,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: AppColors.onSurfaceVariant),
+                child: Icon(icon, color: secondaryText),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -662,17 +721,14 @@ class _InfoRowCard extends StatelessWidget {
                     const SizedBox(height: 1),
                     Text(
                       value,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: secondaryText),
                     ),
                   ],
                 ),
               ),
-              const Icon(
-                Icons.edit_outlined,
-                color: AppColors.onSurfaceVariant,
-              ),
+              Icon(Icons.edit_outlined, color: secondaryText),
             ],
           ),
         ),
@@ -694,9 +750,17 @@ class _ConditionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark
+        ? const Color(0xFF161D28)
+        : AppColors.surfaceContainerLowest;
+    final secondaryText = isDark
+        ? const Color(0xFFBAC4D1)
+        : AppColors.onSurfaceVariant;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: cardColor,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: AppColors.outline.withOpacity(0.12)),
       ),
@@ -720,7 +784,7 @@ class _ConditionCard extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 onPressed: onEdit,
                 icon: const Icon(Icons.edit_outlined, size: 18),
-                color: AppColors.onSurfaceVariant,
+                color: secondaryText,
               ),
               IconButton(
                 visualDensity: VisualDensity.compact,
@@ -738,10 +802,9 @@ class _ConditionCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             condition.description,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
-              height: 1.35,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: secondaryText, height: 1.35),
           ),
         ],
       ),

@@ -21,9 +21,12 @@ class AppSectionThemeWrapper extends ConsumerWidget {
       return themedChild;
     }
 
-    return ColorFiltered(
-      colorFilter: const ColorFilter.mode(Color(0x2A000000), BlendMode.darken),
-      child: themedChild,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        themedChild,
+        const IgnorePointer(child: ColoredBox(color: Color(0x66000000))),
+      ],
     );
   }
 }
